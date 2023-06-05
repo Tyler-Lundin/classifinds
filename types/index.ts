@@ -1,10 +1,12 @@
 
 
 type ICategory = {
-  id: String,
-  name: String,
+  id: string,
+  name: string,
   branches: ICategory[],
-  keywords: String[],
+  keywords: string[],
 }
 
-type ILocation
+type IListing = {
+
+}

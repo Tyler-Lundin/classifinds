@@ -2,6 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Roboto_Serif } from "next/font/google"
 import { BsSearch } from 'react-icons/bs'
+import { Category } from '@prisma/client'
+import slugify from 'slugify'
 
 
 const RS = Roboto_Serif({ subsets: ['latin'] })
@@ -77,11 +79,44 @@ function SideBar() {
   )
 }
 
-function Categories() {
+async function getCategories() {
 
+  const res = await fetch('http:/localhost:3000/api/categories', {
+    method: 'GET',
+  });
+
+  if (!res.ok) {
+    throw new Error(res.statusText);
+  }
+
+  return await res.json() as Category[];
+}
+
+
+const slug = (str: string) => slugify(str, { lower: true, remove: /[*+~.()'"!:@]/g });
+
+async function Categories() {
+  const categories = await getCategories();
+  const parentCategories = categories.filter((category) => !category.parentId);
+  const childCategories = categories.filter((category) => category.parentId);
   return (
-    <div className="w-full h-full bg-gray-200 col-span-12 lg:col-span-10">
-
+    <div className="w-full h-full bg-gray-200 col-span-12 lg:col-span-10 p-2">
+      <ul className="flex flex-wrap gap-2">
+        {parentCategories.map(({ id: parentId, name: parentName }) => (
+          <li key={parentId} className="w-60 rounded-lg group relative shadow">
+            <h5 className="text-lg bg-white rounded-lg group-hover:rounded-b-none font-bold text-gray-700 p-4">{parentName}</h5>
+            <ul className="hidden gap-2 group-hover:grid absolute top-full shadow p-4 left-0 bg-gray-100 w-60 z-40">
+              {childCategories.filter((childCategory) => childCategory.parentId === parentId).map(({ name: childName, id: childId }) => (
+                <li key={childId} className="hover:underline">
+                  <Link href={`/category/${slug(parentName)}/${slug(childName).toLowerCase()}`}>
+                    {childName}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
