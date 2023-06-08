@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   pages: {
-    signIn: '/auth/signin',
+    // signIn: '/auth/signin',
   },
   callbacks: {
     // async session({ token, session }) {
